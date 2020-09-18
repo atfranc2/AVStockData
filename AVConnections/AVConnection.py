@@ -1,34 +1,45 @@
 import requests
-from abc import ABC, abstractmethod
+import csv
 
-class AVConnection(ABC):
+class AVConnection():
 
     def __init__(self, api_key):
         self.__base_query_string = 'https://www.alphavantage.co/query?'
         self.api_key = api_key
 
-    def __callHasError(self, response_dict):
-        return True if response_dict.get('Error Message', False) else False
-
-    def __callLimitExceeded(self, repsonse_dict):
-        return True if response_dict.get('Note', False) else False
-
-    def __getResponse(self, params):
-        return requests.get(self.__base_query_string, params = params)
-
     def __isValidApiKey(self, api_key):
         test_params = {'function':'TIME_SERIES_DAILY','symbol':'PG','apikey':api_key}
-        response = self.__getResponse(params = test_params)
-        response_json = response.json()
+        response = self.getResponse(params = test_params)
+        response_json = self.decodeJSONReponse(response)
 
-        if self.__callHasError(response_json):
+        if self.callHasError(response_json):
             return False
 
         return True
 
-    @abstractmethod
-    def __isValidTicker(self, ticker):
-        pass
+    def callHasError(self, response, is_json_response = True):
+        if is_json_response:
+            return True if response.get('Error Message', False) else False
+
+        return True
+
+    def callLimitExceeded(self, response, is_json_response = True):
+        if is_json_response:
+            return True if response.get('Note', False) else False
+
+        return True
+
+    def decodeCSVResponse(self, response):
+        decoded_content = response.content.decode('utf-8')
+        decoded_content = csv.reader(decoded_content.splitlines(), delimiter=',')
+
+        return list(decoded_content)
+
+    def decodeJSONReponse(self, response):
+        return response.json()
+
+    def getResponse(self, params):
+        return requests.get(self.__base_query_string, params = params)
 
     @property
     def api_key(self):
