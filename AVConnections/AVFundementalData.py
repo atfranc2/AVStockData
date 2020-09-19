@@ -30,7 +30,7 @@ class AVFundementalData(AVConnection):
     def getListingStatus(self, status = 'active', date = None):
         if not self.validate.isValidListingStatus(status):
             status = 'active'
-            return Warning("An invalid value for status was passed in getListingStatus(...). Status of active will be used for stock with symbol = {ticker}.")
+            return Warning("An invalid value for status was passed in getListingStatus(...). Status of active will be used by default.")
 
         params = {'function':'LISTING_STATUS','status':status, 'date':date, 'apikey':self.api_key}
         response = self.getResponse(params)
