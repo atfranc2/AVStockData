@@ -1,14 +1,9 @@
 from AVStockData.EndpointProcessing.BaseProcessor import BaseProcessor
-from AVStockData.AVConnections.AVFundementalData import AVFundementalData
+from abc import ABC, abstractmethod
 
-class CompanyOverviewProcessor(BaseProcessor):
+class CrossSectionalBaseProcessor(BaseProcessor, ABC):
     def __init__(self, api_key):
         super().__init__(api_key)
-        self.getCompanyOverview = AVFundementalData(api_key).getCompanyOverview
-
-    def getData(self, ticker):
-        self.currentResult = self.getCompanyOverview(ticker)
-        return self
 
     def toList(self):
         if self.currentResultIsList() | self.currentResultIsNone():

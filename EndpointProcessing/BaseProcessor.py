@@ -14,6 +14,10 @@ class BaseProcessor(ABC):
     def toList(self):
         pass
 
+    @abstractmethod
+    def getData(self, **args):
+        pass
+
     def currentResultIsDict(self):
         if type(self.currentResult) == dict:
             return True

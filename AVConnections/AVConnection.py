@@ -6,6 +6,8 @@ class AVConnection():
     def __init__(self, api_key):
         self.__base_query_string = 'https://www.alphavantage.co/query?'
         self.api_key = api_key
+        self.is_json = False
+        self.is_csv = False
 
     def __isValidApiKey(self, api_key):
         test_params = {'function':'TIME_SERIES_DAILY','symbol':'PG','apikey':api_key}
@@ -29,13 +31,37 @@ class AVConnection():
 
         return True
 
+    def serverResultIsDict(self):
+        if type(self.resultFromServer) == dict:
+            return True
+
+        return False
+
+    def serverResultIsList(self):
+        if type(self.resultFromServer) == list:
+            return True
+
+        return False
+
+    def serverResultIsNone(self):
+        return type(self.resultFromServer) == None
+
+    def setDataTypeToJson(self):
+        self.is_json = True
+        self.is_csv = False
+
+    def setDataTypeToCSV(self):
+        self.is_json = False
+        self.is_csv = True
+
     def decodeCSVResponse(self, response):
         decoded_content = response.content.decode('utf-8')
         decoded_content = csv.reader(decoded_content.splitlines(), delimiter=',')
-
+        self.setDataTypeToCSV()
         return list(decoded_content)
 
     def decodeJSONReponse(self, response):
+        self.setDataTypeToJson()
         return response.json()
 
     def getResponse(self, params):
