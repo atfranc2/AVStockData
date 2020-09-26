@@ -58,10 +58,12 @@ class AVConnection():
         decoded_content = response.content.decode('utf-8')
         decoded_content = csv.reader(decoded_content.splitlines(), delimiter=',')
         self.setDataTypeToCSV()
+
         return list(decoded_content)
 
     def decodeJSONReponse(self, response):
         self.setDataTypeToJson()
+
         return response.json()
 
     def getResponse(self, params):
@@ -73,7 +75,4 @@ class AVConnection():
 
     @api_key.setter
     def api_key(self, api_key):
-        if not self.__isValidApiKey(api_key):
-            raise ValueError("The API key entered is not a valid Alpha Vantage API key")
-
         self.__api_key = api_key
