@@ -1,4 +1,5 @@
 from AVStockData.AVConnections.AVConnection import AVConnection
+from AVStockData.AVConnections.Containers.AVTimeSeries import AVTimeSeries
 from abc import ABC, abstractmethod
 
 class StockMarket(AVConnection, ABC):
@@ -29,7 +30,7 @@ class StockMarket(AVConnection, ABC):
         self.last_refreshed = None
         self.time_zone = None
 
-        self.time_series = self.__unpackCsvResponse(csv_response)
+        self.time_series = AVTimeSeries(self.__unpackCsvResponse(csv_response))
 
     def __isNaN(self, value):
         try:
@@ -54,7 +55,7 @@ class StockMarket(AVConnection, ABC):
         self.last_refreshed = meta_data["Last Refreshed"]
         self.time_zone = meta_data["Time Zone"]
 
-        self.time_series = self.__unpackJsonResponse(json_response, time_series_name)
+        self.time_series = AVTimeSeries(self.__unpackJsonResponse(json_response, time_series_name))
 
     def parse(self, response, time_series_name):
         if self.is_csv:

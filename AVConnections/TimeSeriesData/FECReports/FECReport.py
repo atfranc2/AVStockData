@@ -1,4 +1,5 @@
 from AVStockData.AVConnections.AVConnection import AVConnection
+from AVStockData.AVConnections.Containers.ReportMetrics import ReportMetrics
 
 class FECReport(AVConnection):
     def __init__(self, api_key):
@@ -44,5 +45,5 @@ class FECReport(AVConnection):
     def parse(self, json_response):
         self.symbol = json_response['symbol']
         self.currency = json_response["annualReports"][0]["reportedCurrency"]
-        self.quarterly_reports = self.__getQuarterlyReports(json_response)
-        self.annual_reports = self.__getAnnualReports(json_response)
+        self.quarterly_reports = ReportMetrics(self.__getQuarterlyReports(json_response))
+        self.annual_reports = ReportMetrics(self.__getAnnualReports(json_response))
