@@ -8,9 +8,7 @@ class ReportMetrics(AVTimeSeries):
     def __init__(self, time_series):
         super().__init__(time_series)
 
-        self.__setDataMatrix()
-        self.__setFields()
-        self.__setTimeStamps()
+        self.__parseTimeSeries()
 
     def getSummary(self):
         number_of_fields = len(self.fields)
@@ -67,12 +65,8 @@ class ReportMetrics(AVTimeSeries):
 
         return [row[metric_index] for row in self.data_matrix]
 
-    def __setDataMatrix(self):
-        time_series = self.time_series if self.utils.isCSV(self.time_series) else self.toCSV().time_series
-        self.data_matrix = [series[1:] for series in self.time_series[1:]]
-
-    def __setFields(self):
-        self.fields = self.time_series[0][1:]
-
-    def __setTimeStamps(self):
-        self.timestamps = [datetime.strptime(timestamp[0], "%Y-%m-%d") for timestamp in self.time_series[1:]]
+    def __parseTimeSeries(self):
+        time_series = self.time_series if self.utils.isCSV(self.time_series) else self.jsonToCSV(self.time_series)
+        self.data_matrix = [series[1:] for series in time_series[1:]]
+        self.fields = time_series[0][1:]
+        self.timestamps = [datetime.strptime(timestamp[0], "%Y-%m-%d") for timestamp in time_series[1:]]
