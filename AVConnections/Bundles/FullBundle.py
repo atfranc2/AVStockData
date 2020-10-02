@@ -5,7 +5,6 @@ from AVStockData.AVConnections.TimeSeriesData.FECReports.IncomeStatement import 
 from AVStockData.AVConnections.TimeSeriesData.FECReports.CashFlow import CashFlow
 from AVStockData.AVConnections.TimeSeriesData.FECReports.BalanceSheet import BalanceSheet
 
-
 from AVStockData.AVConnections.TimeSeriesData.StockMarket.Intraday import Intraday
 from AVStockData.AVConnections.TimeSeriesData.StockMarket.IntradayExtended import IntradayExtended
 from AVStockData.AVConnections.TimeSeriesData.StockMarket.Daily import Daily
@@ -15,28 +14,14 @@ from AVStockData.AVConnections.TimeSeriesData.StockMarket.WeeklyAdjusted import 
 from AVStockData.AVConnections.TimeSeriesData.StockMarket.Monthly import Monthly
 from AVStockData.AVConnections.TimeSeriesData.StockMarket.MonthlyAdjusted import MonthlyAdjusted
 
-from AVStockData.AVConnections.AVConnection import AVConnection
-from AVStockData.CallMeter import CallMeter
+from AVStockData.AVConnections.Bundles.Bundle import Bundle
 
-
-class Bundle:
+class FullBundle(Bundle):
     def __init__(self, api_key, call_limit_per_minute = 5, call_limit_per_day = 500):
-        self.callMeter = CallMeter(call_limit_per_minute, call_limit_per_day)
-        self.connection = AVConnection(self.callMeter)
-        self.__api_key = api_key
-        self.__validateAPIKey(api_key)
-        self.__initializeObjectReferences()
+        super().__init__(api_key, call_limit_per_minute, call_limit_per_day)
+        self.initializeObjectReferences()
 
-    def __isValidApiKey(self, api_key):
-        test_params = {'function':'GLOBAL_QUOTE','symbol':'PG', 'datatype':'json', 'apikey':api_key}
-        response = self.connection.getResponse(params = test_params)
-        response_json = self.connection.decodeJSONReponse(response)
-        if self.connection.callHasError(response_json):
-            return False
-
-        return True
-
-    def __initializeObjectReferences(self):
+    def initializeObjectReferences(self):
         self.Intraday = Intraday(self.api_key, callMeter = self.callMeter)
         self.IntradayExtended = IntradayExtended(self.api_key, callMeter = self.callMeter)
         self.Daily = Daily(self.api_key, callMeter = self.callMeter)
@@ -52,17 +37,3 @@ class Bundle:
 
         self.CompanyOverview = CompanyOverview(self.api_key, callMeter = self.callMeter)
         self.Quote = Quote(self.api_key, callMeter = self.callMeter)
-
-    def __validateAPIKey(self, api_key):
-        if not self.__isValidApiKey(api_key):
-            return ValueError(api_key + " is not a valid Alpha Vantage API key.")
-
-    @property
-    def api_key(self):
-        return self.__api_key
-
-    @api_key.setter
-    def api_key(self, api_key):
-        self.__validateAPIKey(api_key)
-        self.__api_key = api_key
-        self.__initializeObjectReferences()

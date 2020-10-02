@@ -10,7 +10,7 @@ class Quote(AVConnection):
         self.symbol = None
         self.last_traded = None
         self.numeric_data = None
-
+        self.__api_key = api_key
         self.__Util = Utils()
 
     def getQuote(self, ticker, data_type = 'json'):

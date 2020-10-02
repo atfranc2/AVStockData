@@ -5,6 +5,7 @@ from AVStockData.CallMeter import CallMeter
 class CompanyOverview(AVConnection):
     def __init__(self, api_key, callMeter = CallMeter(call_limit_per_minute = 5, call_limit_per_day = 500)):
         super().__init__(callMeter)
+        self.__api_key = api_key
         self.symbol = None
         self.asset_type = None
         self.name = None

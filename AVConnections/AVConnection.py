@@ -24,8 +24,9 @@ class AVConnection(ABC):
         decoded_content = response.content.decode('utf-8')
         decoded_content = csv.reader(decoded_content.splitlines(), delimiter=',')
         self.setDataTypeToCSV()
+        csv_response = list(decoded_content)
 
-        return list(decoded_content)
+        return csv_response
 
     def decodeJSONReponse(self, response):
         self.setDataTypeToJson()
@@ -33,8 +34,14 @@ class AVConnection(ABC):
         return response.json()
 
     def getResponse(self, params):
-        self.callMeter.incrementCalls()
-        return requests.get(self.__base_query_string, params = params)
+        self.callMeter.meterCalls()
+        call_response = requests.get(self.__base_query_string, params = params)
+        if self.callLimitExceeded(call_response):
+            print(f"Calls per minute exceeded. Pausing operations for 60 seconds.")
+            sleep(60)
+            call_response = requests.get(self.__base_query_string, params = params)
+
+        return call_response
 
     def callHasError(self, response):
         if self.is_json:
@@ -43,7 +50,4 @@ class AVConnection(ABC):
         return True if response[1][0].count("Error Message") else False
 
     def callLimitExceeded(self, response):
-        if self.is_json:
-            return True if response.get('Note', False) else False
-
-        return True if response[1][0].count("Note") > 0 else False
+        return True if response.content.count(b"Note") > 0 else False
