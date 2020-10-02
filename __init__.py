@@ -15,8 +15,11 @@ from AVStockData.AVConnections.TimeSeriesData.StockMarket.WeeklyAdjusted import 
 from AVStockData.AVConnections.TimeSeriesData.StockMarket.Monthly import Monthly
 from AVStockData.AVConnections.TimeSeriesData.StockMarket.MonthlyAdjusted import MonthlyAdjusted
 
+from AVStockData.Bundle import Bundle
 
-__all__ = [CompanyOverview,
+
+__all__ = [Bundle,
+           CompanyOverview,
            Quote,
            IncomeStatement,
            CashFlow,

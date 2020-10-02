@@ -1,11 +1,12 @@
 from AVStockData.AVConnections.AVConnection import AVConnection
 from AVStockData.AVConnections.Containers.StockPrices import StockPriceSeries
 from abc import ABC, abstractmethod
+from AVStockData.CallMeter import CallMeter
 
 class StockMarket(AVConnection, ABC):
-    def __init__(self, api_key):
-        super().__init__(api_key)
-
+    def __init__(self, api_key, callMeter = CallMeter(call_limit_per_minute = 5, call_limit_per_day = 500)):
+        super().__init__(callMeter)
+        self.__api_key = api_key
         self.time_series = None
         self.symbol = None
         self.last_refreshed = None
@@ -62,3 +63,11 @@ class StockMarket(AVConnection, ABC):
             self.__parseCSV(response)
         else:
             self.__parseJSON(response, time_series_name)
+
+    @property
+    def api_key(self):
+        return self.__api_key
+
+    @api_key.setter
+    def api_key(self, api_key):
+        self.__api_key = api_key

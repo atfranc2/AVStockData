@@ -1,9 +1,10 @@
 from AVStockData.AVConnections.AVConnection import AVConnection
 from AVStockData.AVConnections.Containers.AVCrossSectional import AVCrossSectional
+from AVStockData.CallMeter import CallMeter
 
 class CompanyOverview(AVConnection):
-    def __init__(self, api_key):
-        super().__init__(api_key)
+    def __init__(self, api_key, callMeter = CallMeter(call_limit_per_minute = 5, call_limit_per_day = 500)):
+        super().__init__(callMeter)
         self.symbol = None
         self.asset_type = None
         self.name = None
@@ -73,3 +74,11 @@ class CompanyOverview(AVConnection):
         unpacked_response = self.unpackJsonResponse(json_response, fields)
 
         return self.covertStringsToNumeric(unpacked_response)
+
+    @property
+    def api_key(self):
+        return self.__api_key
+
+    @api_key.setter
+    def api_key(self, api_key):
+        self.__api_key = api_key

@@ -1,9 +1,10 @@
 from AVStockData.AVConnections.AVConnection import AVConnection
 from AVStockData.AVConnections.Containers.ReportMetrics import ReportMetrics
+from AVStockData.CallMeter import CallMeter
 
 class FECReport(AVConnection):
-    def __init__(self, api_key):
-        super().__init__(api_key)
+    def __init__(self, api_key, callMeter = CallMeter(call_limit_per_minute = 5, call_limit_per_day = 500)):
+        super().__init__(callMeter)
         self.symbol = None
         self.quarterly_reports = None
         self.annual_reports = None
@@ -47,3 +48,11 @@ class FECReport(AVConnection):
         self.currency = json_response["annualReports"][0]["reportedCurrency"]
         self.quarterly_reports = ReportMetrics(self.__getQuarterlyReports(json_response))
         self.annual_reports = ReportMetrics(self.__getAnnualReports(json_response))
+
+    @property
+    def api_key(self):
+        return self.__api_key
+
+    @api_key.setter
+    def api_key(self, api_key):
+        self.__api_key = api_key

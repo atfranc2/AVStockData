@@ -1,9 +1,10 @@
 from AVStockData.AVConnections.AVConnection import AVConnection
 from AVStockData.AVConnections.TimeSeriesData.StockMarket.StockMarket import StockMarket
+from AVStockData.CallMeter import CallMeter
 
 class Weekly(StockMarket):
-    def __init__(self, api_key):
-        super().__init__(api_key)
+    def __init__(self, api_key, callMeter = CallMeter(call_limit_per_minute = 5, call_limit_per_day = 500)):
+        super().__init__(api_key, callMeter)
         self.setTimeSeriesName()
 
     def setTimeSeriesName(self):

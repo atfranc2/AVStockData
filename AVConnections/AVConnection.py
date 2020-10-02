@@ -1,50 +1,16 @@
 import requests
 import csv
+from time import time, sleep
+from abc import ABC, abstractmethod
+from AVStockData.CallMeter import CallMeter
 
-class AVConnection():
+class AVConnection(ABC):
 
-    def __init__(self, api_key):
+    def __init__(self, callMeter = CallMeter(call_limit_per_minute = 5, call_limit_per_day = 500)):
         self.__base_query_string = 'https://www.alphavantage.co/query?'
-        self.api_key = api_key
         self.is_json = False
         self.is_csv = False
-
-    def __isValidApiKey(self, api_key):
-        test_params = {'function':'TIME_SERIES_DAILY','symbol':'PG','apikey':api_key}
-        response = self.getResponse(params = test_params)
-        response_json = self.decodeJSONReponse(response)
-
-        if self.callHasError(response_json):
-            return False
-
-        return True
-
-    def callHasError(self, response, is_json_response = True):
-        if is_json_response:
-            return True if response.get('Error Message', False) else False
-
-        return True
-
-    def callLimitExceeded(self, response, is_json_response = True):
-        if is_json_response:
-            return True if response.get('Note', False) else False
-
-        return True
-
-    def serverResultIsDict(self):
-        if type(self.resultFromServer) == dict:
-            return True
-
-        return False
-
-    def serverResultIsList(self):
-        if type(self.resultFromServer) == list:
-            return True
-
-        return False
-
-    def serverResultIsNone(self):
-        return type(self.resultFromServer) == None
+        self.callMeter = callMeter
 
     def setDataTypeToJson(self):
         self.is_json = True
@@ -67,12 +33,17 @@ class AVConnection():
         return response.json()
 
     def getResponse(self, params):
+        self.callMeter.incrementCalls()
         return requests.get(self.__base_query_string, params = params)
 
-    @property
-    def api_key(self):
-        return self.__api_key
+    def callHasError(self, response):
+        if self.is_json:
+            return True if response.get('Error Message', False) else False
 
-    @api_key.setter
-    def api_key(self, api_key):
-        self.__api_key = api_key
+        return True if response[1][0].count("Error Message") else False
+
+    def callLimitExceeded(self, response):
+        if self.is_json:
+            return True if response.get('Note', False) else False
+
+        return True if response[1][0].count("Note") > 0 else False

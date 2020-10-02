@@ -12,7 +12,7 @@ class ReportMetrics(AVTimeSeries):
 
     def getSummary(self):
         number_of_fields = len(self.fields)
-        summary = [['Field Name', 'Mean', 'Min', 'Max', 'STD'], *[0]*number_of_fields]
+        summary = [['Field Name', 'Observation Count' 'Mean', 'Min', 'Max', 'STD'], *[0]*number_of_fields]
         for index in range(0, number_of_fields):
             field = self.fields[index]
             values = self.__getMetricValues(field)
@@ -20,7 +20,8 @@ class ReportMetrics(AVTimeSeries):
             std = self.__calculateStd(values)
             min_value = min(values)
             max_value = max(values)
-            summary[index+1] = [field, mean, min_value, max_value, std]
+            n_observations = len(values)
+            summary[index+1] = [field, n_observations, mean, min_value, max_value, std]
 
         return summary
 

@@ -2,10 +2,11 @@ from AVStockData.AVConnections.AVConnection import AVConnection
 from AVStockData.AVConnections.Containers.AVCrossSectional import AVCrossSectional
 from AVStockData.AVConnections.Utils import Utils
 from AVStockData.AVConnections.Containers.AVCrossSectional import AVCrossSectional
+from AVStockData.CallMeter import CallMeter
 
 class Quote(AVConnection):
-    def __init__(self, api_key):
-        super().__init__(api_key)
+    def __init__(self, api_key, callMeter = CallMeter(call_limit_per_minute = 5, call_limit_per_day = 500)):
+        super().__init__(callMeter)
         self.symbol = None
         self.last_traded = None
         self.numeric_data = None
@@ -48,3 +49,11 @@ class Quote(AVConnection):
             self.parseJsonResponse(response)
         else:
             self.parseCsvResponse(response)
+
+    @property
+    def api_key(self):
+        return self.__api_key
+
+    @api_key.setter
+    def api_key(self, api_key):
+        self.__api_key = api_key
