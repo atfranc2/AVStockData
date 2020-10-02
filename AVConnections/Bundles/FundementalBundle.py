@@ -24,11 +24,11 @@ class FundementalBundle(Bundle):
             incomeStatementData = self.IncomeStatement.getIncomeStatement(ticker)
             companyOverviewData = self.CompanyOverview.getCompanyOverview(ticker)
 
-            result.append({'ticker': ticker
+            result.append({'ticker': ticker,
                            'balanceSheet': balanceSheetData.annual_reports,
                            'cashFlow': cashFlowdata.annual_reports,
                            'incomeStatement': incomeStatementData.annual_reports,
-                           'companyOverview': companyOverviewData
+                           'companyOverview': companyOverviewData.numeric_data
                            })
 
         return result
