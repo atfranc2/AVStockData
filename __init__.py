@@ -17,10 +17,16 @@ from AVStockData.AVConnections.TimeSeriesData.StockMarket.MonthlyAdjusted import
 
 from AVStockData.AVConnections.Bundles.FullBundle import FullBundle
 from AVStockData.AVConnections.Bundles.FundementalBundle import FundementalBundle
+from AVStockData.AVConnections.Containers.FundementalData import FundementalData
+
+from AVStockData.CompanySummary import CompanyComparer
+
 from AVStockData.CallMeter import CallMeter
 
 
-__all__ = [FundementalBundle,
+__all__ = [CompanyComparer,
+           FundementalData,
+           FundementalBundle,
            FullBundle,
            CompanyOverview,
            Quote,

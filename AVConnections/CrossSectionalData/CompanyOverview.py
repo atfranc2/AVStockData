@@ -1,10 +1,12 @@
 from AVStockData.AVConnections.AVConnection import AVConnection
 from AVStockData.AVConnections.Containers.AVCrossSectional import AVCrossSectional
 from AVStockData.CallMeter import CallMeter
+from AVStockData.AVConnections.Utils import Utils
 
 class CompanyOverview(AVConnection):
     def __init__(self, api_key, callMeter = CallMeter(call_limit_per_minute = 5, call_limit_per_day = 500)):
         super().__init__(callMeter)
+        self.utils = Utils()
         self.__api_key = api_key
         self.symbol = None
         self.asset_type = None
@@ -59,7 +61,7 @@ class CompanyOverview(AVConnection):
         excluded_fields = []
         for key in numeric_strings_json.keys():
             value = numeric_strings_json[key]
-            numeric_strings_json[key] = float(numeric_strings_json[key]) if key != 'LastSplitFactor' else self.splitFactorToNumeric(value)
+            numeric_strings_json[key] = self.utils.stringToNumeric(numeric_strings_json[key]) if key != 'LastSplitFactor' else self.splitFactorToNumeric(value)
 
         return numeric_strings_json
 

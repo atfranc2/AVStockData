@@ -16,19 +16,28 @@ class FundementalBundle(Bundle):
         self.IncomeStatement = IncomeStatement(self.api_key, callMeter = self.callMeter)
         self.CompanyOverview = CompanyOverview(self.api_key, callMeter = self.callMeter)
 
-    def getFundementalData(self, *tickers):
+    def getFundementalData(self, *tickers, annual_report = True):
         result = FundementalData()
+        period = 'Year' if annual_report else 'Quarter'
         for ticker in tickers:
-            balanceSheetData = self.BalanceSheet.getBalanceSheet(ticker)
-            cashFlowdata = self.CashFlow.getCashFlow(ticker)
-            incomeStatementData = self.IncomeStatement.getIncomeStatement(ticker)
-            companyOverviewData = self.CompanyOverview.getCompanyOverview(ticker)
+            balance_sheet = self.BalanceSheet.getBalanceSheet(ticker)
+            balance_sheet_reports = balance_sheet.annual_reports if annual_report else balance_sheet.quarterly_reports
+
+            cash_flow = self.CashFlow.getCashFlow(ticker)
+            cash_flow_reports = cash_flow.annual_reports if annual_report else cash_flow.quarterly_reports
+
+            income_statement = self.IncomeStatement.getIncomeStatement(ticker)
+            income_statement_reports = income_statement.annual_reports if annual_report else income_statement.quarterly_reports
+
+            company_overview = self.CompanyOverview.getCompanyOverview(ticker)
+            company_overview_report = company_overview.numeric_data
 
             result.append({'ticker': ticker,
-                           'balanceSheet': balanceSheetData.annual_reports,
-                           'cashFlow': cashFlowdata.annual_reports,
-                           'incomeStatement': incomeStatementData.annual_reports,
-                           'companyOverview': companyOverviewData.numeric_data
+                           'period': period,
+                           'balanceSheet': balance_sheet_reports,
+                           'cashFlow': cash_flow_reports,
+                           'incomeStatement': income_statement_reports,
+                           'companyOverview': company_overview_report
                            })
 
         return result

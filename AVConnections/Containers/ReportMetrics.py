@@ -1,4 +1,5 @@
 from AVStockData.AVConnections.Containers.AVTimeSeries import AVTimeSeries
+from AVStockData.AVConnections.Utils import Utils
 import matplotlib.pyplot as plt
 from datetime import datetime
 from pandas.plotting import register_matplotlib_converters
@@ -7,37 +8,54 @@ register_matplotlib_converters()
 class ReportMetrics(AVTimeSeries):
     def __init__(self, time_series):
         super().__init__(time_series)
-
+        self.utils = Utils()
         self.__parseTimeSeries()
 
     def getSummary(self):
-        number_of_fields = len(self.fields)
-        summary = [['Field Name', 'Observation Count' 'Mean', 'Min', 'Max', 'STD'], *[0]*number_of_fields]
+        fields = self.__getFields()
+        number_of_fields = len(fields)
+        summary = {}
         for index in range(0, number_of_fields):
-            field = self.fields[index]
+            field = fields[index]
             values = self.__getMetricValues(field)
-            mean = self.__caculateMean(values)
-            std = self.__calculateStd(values)
-            min_value = min(values)
-            max_value = max(values)
-            n_observations = len(values)
-            summary[index+1] = [field, n_observations, mean, min_value, max_value, std]
+            valid_values = self.__getValidValues(values)
+            valid_value_count = len(valid_values)
+
+            summary[field] = {
+                'mean': self.__caculateMean(valid_values),
+                'std': self.__caculateMean(valid_values),
+                'min': min(valid_values) if valid_value_count > 0 else float('nan'),
+                'max': max(valid_values)if valid_value_count > 0 else float('nan'),
+                'N': valid_value_count
+            }
 
         return summary
 
+    def getMetric(self, metric):
+        return {date: self.time_series[date][metric] for date in self.__getDates()}
+
     def plotMetric(self, metric):
         values = self.__getMetricValues(metric)
-        dates = self.timestamps
+        dates = self.__getDates()
         plt.plot(dates, values)
         plt.gcf().autofmt_xdate()
         plt.axhline(y=0, color='r', linestyle='--')
         plt.xlabel("Date")
         plt.ylabel(metric)
 
+    def __getDates(self):
+        date_list = list(self.time_series.keys())
+
+        return date_list
+
+    def __getFields(self):
+        dates = self.__getDates()
+        field_list = list(self.time_series[dates[0]].keys())
+
+        return field_list
 
     def __getValidValues(self, value_list):
-        NaN = float('nan')
-        return [value for value in value_list if value != NaN]
+        return [value for value in value_list if str(value) != 'nan']
 
     def __calculateSSE(self, value_list, mean):
         sse = 0
@@ -46,28 +64,27 @@ class ReportMetrics(AVTimeSeries):
         return sse
 
     def __calculateStd(self, value_list):
-        valid_values = self.__getValidValues(value_list)
-        n = len(valid_values)
-        mean = self.__caculateMean(valid_values)
-        sse = self.__calculateSSE(valid_values, mean)
+        n = len(value_list)
+        mean = self.__caculateMean(value_list)
+        sse = self.__calculateSSE(value_list, mean)
 
-        return (sse / n)**0.5
+        return (sse / n)**0.5 if n != 0 else float('nan')
 
     def __caculateMean(self, value_list):
-        valid_values = self.__getValidValues(value_list)
-        value_count = len(valid_values)
+        value_count = len(value_list)
 
-        return sum(valid_values) / value_count
+        return sum(value_list) / value_count if value_count != 0 else float('nan')
 
     def __getMetricValues(self, metric):
-        metric_index = self.fields.index(metric) if self.fields.count(metric) > 0 else -1
-        if metric_index < 0:
+        dates = self.__getDates()
+        valid_metrics = self.__getFields()
+        is_valid_metric = metric in valid_metrics
+
+        if not is_valid_metric:
             return
 
-        return [row[metric_index] for row in self.data_matrix]
+        return [value[metric] for value in [self.time_series[date] for date in dates]]
 
     def __parseTimeSeries(self):
-        time_series = self.time_series if self.utils.isCSV(self.time_series) else self.jsonToCSV(self.time_series)
-        self.data_matrix = [series[1:] for series in time_series[1:]]
-        self.fields = time_series[0][1:]
-        self.timestamps = [datetime.strptime(timestamp[0], "%Y-%m-%d") for timestamp in time_series[1:]]
+        raw_time_series = self.time_series if self.utils.isJson(self.time_series) else self.csvToJson(self.time_series)
+        self.time_series = {datetime.strptime(date, '%Y-%m-%d'): raw_time_series[date] for date in raw_time_series.keys()}
