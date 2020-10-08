@@ -40,16 +40,17 @@ class FundementalBundle(Bundle):
             price = quote.numeric_data.numeric_fields['price']
             date = quote.last_traded
 
-            fundemental_data.append({'ticker': ticker,
-                           'period': period,
-                           'date': date,
-                           'price': price,
-                           'sector': sector,
-                           'industry': industry,
-                           'balanceSheet': balance_sheet_reports,
-                           'cashFlow': cash_flow_reports,
-                           'incomeStatement': income_statement_reports,
-                           'companyOverview': company_overview_report
-                                     })
+            fundemental_data.append({
+                'ticker': ticker,
+                'period': period,
+                'date': date,
+                'price': price,
+                'sector': sector,
+                'industry': industry,
+                'balanceSheet': balance_sheet_reports,
+                'cashFlow': cash_flow_reports,
+                'incomeStatement': income_statement_reports,
+                'companyOverview': company_overview_report
+            })
 
         return fundemental_data

@@ -1,11 +1,25 @@
 from AVStockData.AVConnections.Containers.FundementalData import FundementalData
 from AVStockData.FECReportSummarization.CompanySummary import CompanySummary
+from AVStockData.FECReportSummarization.ReportMetricCalculator import ReportMetricCalculator
+from AVStockData.AVConnections.TimeSeriesData.StockMarket.Daily import Daily
 import matplotlib.pyplot as plt
 from pandas import DataFrame
 
 class CompanyComparer(CompanySummary):
     def __init__(self, fundemental_data):
         super().__init__(fundemental_data)
+        self.__calculator = ReportMetricCalculator()
+
+    def plotEarningsGrowth(self, ticker):
+        earnings_growth = self.getEarningsGrowth(ticker)
+        dates = [date for date in earnings_growth.keys()]
+        growth_values = [100*earnings_growth[date] for date in dates]
+
+        plt.figure(figsize=(8,4))
+        plt.plot(dates, growth_values)
+        plt.xlabel('Date')
+        plt.ylabel('Earnings Growth (%)')
+        plt.axhline(0, c='r', linestyle = '--')
 
     def getSummaryPlot(self, ticker):
         total_revenue = self.getIncomeStatementMetric(ticker, 'totalRevenue')
