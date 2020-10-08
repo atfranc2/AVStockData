@@ -2,6 +2,7 @@ from AVStockData.AVConnections.CrossSectionalData.CompanyOverview import Company
 from AVStockData.AVConnections.TimeSeriesData.FECReports.IncomeStatement import IncomeStatement
 from AVStockData.AVConnections.TimeSeriesData.FECReports.CashFlow import CashFlow
 from AVStockData.AVConnections.TimeSeriesData.FECReports.BalanceSheet import BalanceSheet
+from AVStockData.AVConnections.CrossSectionalData.Quote import Quote
 from AVStockData.AVConnections.Containers.FundementalData import FundementalData
 from AVStockData.AVConnections.Bundles.Bundle import Bundle
 
@@ -15,9 +16,10 @@ class FundementalBundle(Bundle):
         self.CashFlow = CashFlow(self.api_key, callMeter = self.callMeter)
         self.IncomeStatement = IncomeStatement(self.api_key, callMeter = self.callMeter)
         self.CompanyOverview = CompanyOverview(self.api_key, callMeter = self.callMeter)
+        self.Quote = Quote(self.api_key, callMeter = self.callMeter)
 
     def getFundementalData(self, *tickers, annual_report = True):
-        result = FundementalData()
+        fundemental_data = FundementalData()
         period = 'Year' if annual_report else 'Quarter'
         for ticker in tickers:
             balance_sheet = self.BalanceSheet.getBalanceSheet(ticker)
@@ -31,13 +33,23 @@ class FundementalBundle(Bundle):
 
             company_overview = self.CompanyOverview.getCompanyOverview(ticker)
             company_overview_report = company_overview.numeric_data
+            sector = company_overview.sector
+            industry = company_overview.industry
 
-            result.append({'ticker': ticker,
+            quote = self.Quote.getQuote(ticker)
+            price = quote.numeric_data.numeric_fields['price']
+            date = quote.last_traded
+
+            fundemental_data.append({'ticker': ticker,
                            'period': period,
+                           'date': date,
+                           'price': price,
+                           'sector': sector,
+                           'industry': industry,
                            'balanceSheet': balance_sheet_reports,
                            'cashFlow': cash_flow_reports,
                            'incomeStatement': income_statement_reports,
                            'companyOverview': company_overview_report
-                           })
+                                     })
 
-        return result
+        return fundemental_data

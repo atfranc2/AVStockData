@@ -1,4 +1,6 @@
 
+
+
 class FundementalData:
     def __init__(self):
         self.tickers = []
@@ -21,7 +23,7 @@ class FundementalData:
                               'companyOverview': CompanyOverview()}")
 
     def __keysAreValid(self, result):
-        valid_keys = ['ticker', 'balanceSheet', 'cashFlow', 'incomeStatement', 'companyOverview']
+        valid_keys = ['ticker', 'balanceSheet', 'cashFlow', 'incomeStatement', 'companyOverview', 'sector', 'industry', 'price', 'date']
         for key in result.keys():
             if key.lower() not in valid_keys:
                 return KeyError("Dictionary contains at least one unknown key")
@@ -34,15 +36,35 @@ class FundementalData:
         self.__isValidInput(result)
         self.period = result['period']
         self.tickers.append(result['ticker'])
-        self.balance_sheets.append(result['balanceSheet'])
-        self.cash_flows.append(result['cashFlow'])
-        self.income_statements.append(result['incomeStatement'])
-        self.company_overviews.append(result['companyOverview'])
-        self.fundemental_data[result['ticker'].upper()] = {'period': result['period'],
-                                                           'balanceSheet': result['balanceSheet'],
-                                                           'cashFlow': result['cashFlow'],
-                                                           'incomeStatement': result['incomeStatement'],
-                                                           'companyOverview': result['companyOverview']}
+        self.fundemental_data[result['ticker'].upper()] = {
+            'period': result['period'],
+            'date': result['date'],
+            'price': result['price'],
+            'sector': result['sector'],
+            'industry': result['industry'],
+            'balanceSheet': result['balanceSheet'],
+            'cashFlow': result['cashFlow'],
+            'incomeStatement': result['incomeStatement'],
+            'companyOverview': result['companyOverview']
+        }
+
+    def add(self, fundemental_data):
+        tickers = list(fundemental_data.keys())
+        for ticker in tickers:
+            self.tickers.append(ticker)
+            result = fundemental_data[ticker]
+            self.fundemental_data[ticker.upper()] = {
+            'period': result['period'],
+            'date': result['date'],
+            'price': result['price'],
+            'sector': result['sector'],
+            'industry': result['industry'],
+            'balanceSheet': result['balanceSheet'],
+            'cashFlow': result['cashFlow'],
+            'incomeStatement': result['incomeStatement'],
+            'companyOverview': result['companyOverview']
+        }
+
 
     def __getitem__(self, ticker):
         return self.fundemental_data.get(ticker.upper(), 0)

@@ -43,7 +43,6 @@ class FECReport(AVConnection):
 
         return self.__unpackJsonListResponse(quarterly_reports)
 
-
     def parse(self, json_response):
         self.symbol = json_response['symbol']
         self.currency = json_response["annualReports"][0]["reportedCurrency"]

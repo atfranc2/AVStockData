@@ -12,6 +12,8 @@ class CompanyOverview(AVConnection):
         self.asset_type = None
         self.name = None
         self.description = None
+        self.sector = None
+        self.industry = None
         self.descriptive_data = None
         self.datetime_data = None
         self.numeric_data = None
@@ -29,6 +31,8 @@ class CompanyOverview(AVConnection):
         self.asset_type = json_response['AssetType']
         self.name = json_response['Name']
         self.description = json_response['Description']
+        self.sector = json_response['Sector']
+        self.industry = json_response['Industry']
 
         self.descriptive_data = self.getStockInformationFields(json_response)
         self.datetime_data = self.getDatetimeFields(json_response)

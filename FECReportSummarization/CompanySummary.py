@@ -4,18 +4,38 @@ import matplotlib.pyplot as plt
 
 class CompanyComparer:
     def __init__(self, fundemental_data):
-        self.isValidInput(fundemental_data)
+        self.__isValidInput(fundemental_data)
         self.fundemental_data = fundemental_data
 
-    def isValidInput(self, fundemental_data):
+    def __isValidInput(self, fundemental_data):
         if not isinstance(fundemental_data, FundementalData):
             return ValueError('One of the arguments entered is not an instance of the FundementalData class.')
 
-    def drawSubPlot(rows, columns, plot_number, x_values, y_values):
+    def __drawSubPlot(rows, columns, plot_number, x_values, y_values):
         plot_id = int(str(rows) + str(columns) + str(plot_number))
 
         plt.subplot(plot_id)
         plt.plot(x_values, y_values)
+
+    def getSummaryPlot(self, ticker):
+        plt.figure(figsize=(8,8))
+        total_revenue = self.getIncomeStatementMetric(ticker, 'totalRevenue')
+        total_revenue_dates = list(total_revenue.keys())
+        total_revenue_values = [total_revenue[key] for key in total_revenue_dates]
+
+        net_income = self.getIncomeStatementMetric(ticker, 'netIncome')
+        net_income_dates = list(net_income.keys())
+        net_income_values = [net_income[key] for key in net_income_dates]
+
+        plt.subplot(211)
+        plt.plot(total_revenue_dates, total_revenue_values)
+        plt.xlabel('Date')
+        plt.ylabel('Total Revenue')
+
+        plt.subplot(212)
+        plt.plot(net_income_dates, net_income_values)
+        plt.xlabel('Date')
+        plt.ylabel('Net Income')
 
     def getSummaryPlots(self):
         tickers = self.getTickers()
@@ -83,16 +103,21 @@ class CompanyComparer:
         period = self.getPeriod(ticker)
 
         summary = {
+            'date': self.fundemental_data[ticker]['date'],
+            'price': self.fundemental_data[ticker]['price'],
+            'sector': self.fundemental_data[ticker]['sector'],
+            'industry': self.fundemental_data[ticker]['industry'],
             'net_income': {'value': net_income['mean'], 'type': 'mean', 'sample_size': net_income['N'], 'period': period},
             'total_revenue': {'value': total_revenue['mean'], 'type': 'mean', 'sample_size': total_revenue['N'], 'period': period},
             'pe_ratio': {'value': pe_ratio, 'type': 'point', 'sample_size': 1, 'period': period},
             'peg_ratio': {'value': peg_ratio, 'type': 'point', 'sample_size': 1, 'period': period},
             'pb_ratio': {'value': pb_ratio, 'type': 'point', 'sample_size': 1, 'period': period},
             'ps_ratio_ttm': {'value': ps_ratio_ttm, 'type': 'mean', 'sample_size': 12, 'period': 'Month'},
-            'dividend_yield': {'value': dividend_yield, 'type': 'point', 'sample_size': net_income['N'], 'period': self.getPeriod(ticker)}
+            'dividend_yield': {'value': dividend_yield, 'type': 'point', 'sample_size': 1, 'period': self.getPeriod(ticker)}
         }
 
         return summary
+
 
     def show(self):
         return_item = {}
