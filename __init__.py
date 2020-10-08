@@ -19,7 +19,7 @@ from AVStockData.AVConnections.Bundles.FullBundle import FullBundle
 from AVStockData.AVConnections.Bundles.FundementalBundle import FundementalBundle
 from AVStockData.AVConnections.Containers.FundementalData import FundementalData
 
-from AVStockData.FECReportSummarization.CompanySummary import CompanyComparer
+from AVStockData.FECReportSummarization.CompanyComparer import CompanyComparer
 
 from AVStockData.CallMeter import CallMeter
 
